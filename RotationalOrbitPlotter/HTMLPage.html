@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<div id="inputs" style="overflow:hidden; position:absolute; top:0; left:0; height:100px;right:0px;background-color:#42f55a;line-height: 0px;">
+		<p>Point:</p>
+		<input type="text" id="point" name="point"><br><br>
+		<button type="button" onclick="draw()">Draw</button>
+	</div>
+	<div id="display" style="overflow:hidden; position:absolute; top:100px; left:0; height:1000px;right:0px;">
+		<canvas id="canvas" width="1000" height="1000"></canvas>
+		<script>
+
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+
+			ctx.beginPath();
+			ctx.arc(500, 500, 500, 0, 2 * Math.PI);
+			ctx.stroke();
+
+			function getVal(point) {
+			
+				var numbers = point.split("").map(x=>+x);
+
+				var sigma = 0;
+
+				var numerator = 0;
+
+				for (var i = 0; i < point.length; i++) {
+				
+					if (numbers[i] > sigma) {
+					
+						sigma = numbers[i];
+
+					}
+
+				}
+
+				sigma += 1;
+
+				var numerator = 0;
+				var denominator = Math.pow(sigma, point.length) - 1;
+
+				for (var i = 0; i < point.length; i++) {
+
+					numerator += numbers[i] * (Math.pow(sigma, point.length - i - 1));
+
+				}
+
+				return numerator / denominator;
+
+			}
+
+			function draw() {
+
+				ctx.clearRect(0, 0, 1000, 1000);
+
+				ctx.beginPath();
+				ctx.arc(500, 500, 500, 0, 2 * Math.PI);
+				ctx.stroke();
+
+				var curPoint = document.getElementById("point").value;
+				var val = getVal(curPoint);
+
+				ctx.beginPath();
+				ctx.moveTo(500 * Math.cos(val * 2 * Math.PI) + 500, 500 * Math.sin(val * 2 * Math.PI) + 500);
+
+				for (var i = 0; i < curPoint.length; i++) {
+
+					curPoint = curPoint.slice(1 - curPoint.length) + curPoint.substr(0, 1);
+					val = getVal(curPoint);
+
+					ctx.lineTo(500 * Math.cos(val * 2 * Math.PI) + 500, 500 * Math.sin(val * 2 * Math.PI) + 500);
+
+				}
+
+				ctx.stroke();
+
+			}
+
+		</script>
+	</div>
+</body>
+</html>
