@@ -6,7 +6,7 @@
     <title></title>
 </head>
 <body>
-	<div id="inputs" style="overflow:hidden; position:absolute; top:0; left:0; height:150px;right:0px;background-color:#6d9eed;line-height: 0px;">
+	<div id="inputs" style="overflow:hidden; position:absolute; top:0; left:0; height:220px;right:0px;background-color:#6d9eed;line-height: 0px;">
 		<p>Sigma:</p>
 		<input type="text" id="sigma" name="sigma"><br><br>
 		<p>Points:</p>
@@ -14,8 +14,11 @@
 		<button type="button" onclick="draw()">Draw</button>
 		<button type="button" onclick="drawPreZeroes()">Draw Pre-Images of Zero</button>
 		<button type="button" onclick="clearCanvas()">Clear</button>
+		<p>Chord Start Point:</p>
+		<input type="text" id="chordStart" name="chordStart"><br><br>
+		<button type="button" onclick="drawChord()">Draw Chord</button>
 	</div>
-	<div id="display" style="overflow:hidden; position:absolute; top:150px; left:0; height:1000px;right:0px;">
+	<div id="display" style="overflow:hidden; position:absolute; top:220px; left:0; height:1000px;right:0px;">
 		<canvas id="canvas" width="1000" height="1000"></canvas>
 		<table id="table">
 			<thead>
@@ -61,20 +64,25 @@
 				}
 
 				var repDig = point.match(/_\d+/);
-				var repDigSlice = repDig[0].slice(2 - repDig.length);
 
-				var numbers = repDigSlice.split("").map(x=>+x);
+				if (repDig != null) {
 
-				var numerator = 0;
-				var denominator = 1 - (1 / Math.pow(sigma, numbers.length));
+					var repDigSlice = repDig[0].slice(2 - repDig.length);
 
-				for (var i = 0; i < numbers.length; i++) {
+					var numbers = repDigSlice.split("").map(x=>+x);
 
-					numerator += numbers[i] / (Math.pow(sigma, nonRepNumbers.length + i + 1));
+					var numerator = 0;
+					var denominator = 1 - (1 / Math.pow(sigma, numbers.length));
+
+					for (var i = 0; i < numbers.length; i++) {
+
+						numerator += numbers[i] / (Math.pow(sigma, nonRepNumbers.length + i + 1));
+
+					}
+
+					returnVal += numerator / denominator;
 
 				}
-
-				returnVal += numerator / denominator;
 
 				return returnVal;
 
@@ -200,6 +208,24 @@
 					ctx.stroke();
 
 				}
+			
+			}
+
+			function drawChord() {
+
+				var sigma = document.getElementById("sigma").value;
+				var startVal = getVal(document.getElementById("chordStart").value, sigma);
+
+				var endVal = startVal + (1 / sigma);
+
+				ctx.beginPath();
+
+				ctx.moveTo((canvas.height/2 - 10) * Math.cos(startVal * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(startVal * 2 * Math.PI) + canvas.height/2));
+
+				ctx.lineTo((canvas.height/2 - 10) * Math.cos(endVal * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(endVal * 2 * Math.PI) + canvas.height/2));
+
+				ctx.strokeStyle = "black";
+				ctx.stroke();
 			
 			}
 
