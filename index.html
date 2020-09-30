@@ -12,11 +12,15 @@
 		<p>Point:</p>
 		<input type="text" id="point" name="point"><br><br>
 		<button type="button" onclick="draw()">Draw</button>
+		<button type="button" onclick="drawPreZeroes()">Draw Pre-Images of Zero</button>
 		<button type="button" onclick="clearCanvas()">Clear</button>
 	</div>
 	<div id="display" style="overflow:hidden; position:absolute; top:200px; left:0; height:1000px;right:0px;">
 		<canvas id="canvas" width="1000" height="1000"></canvas>
 		<script>
+
+			var colors = ["#000000","#a30000","#127a00","#00128a","#8a4e00","#009682", "#5f0096"];
+			var curColor = 0;
 
 			const canvas = document.getElementById('canvas');
 			const ctx = canvas.getContext('2d');
@@ -34,7 +38,7 @@
 				if (point.search(/\d+_/) != -1) {
 				
 					var nonRepDig = point.match(/\d+_/);
-					var nonRepDigSlice = nonRepDig[0].slice(nonRepDig.length - 2);
+					var nonRepDigSlice = nonRepDig[0].slice(0, nonRepDig.length - 2);
 
 					nonRepNumbers = nonRepDigSlice.split("").map(x=>+x);
 
@@ -71,45 +75,93 @@
 				var curPoint = document.getElementById("point").value;
 				var val = getVal(curPoint, document.getElementById("sigma").value);
 
-				ctx.beginPath();
-				ctx.moveTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
+				var curPointLength = curPoint.length;
 
-				for (var i = 0; i < curPoint.length; i++) {
+				var notStarted = true;
+
+				ctx.beginPath();
+
+				ctx.arc(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500), 5, 0, 2 * Math.PI, false);
+				ctx.fillStyle = colors[curColor];
+				ctx.fill();
+				ctx.beginPath();
+
+				for (var i = 0; i < curPointLength; i++) {
 
 					if (curPoint.substr(0, 1) != "_") {
 					
 						curPoint = curPoint.slice(1 - curPoint.length);
 
+						val = getVal(curPoint, document.getElementById("sigma").value);
+
 					} else {
 					
 						curPoint = curPoint.substr(0, 1) + curPoint.slice(2 - curPoint.length) + curPoint.substr(1, 1);
 
+						ctx.moveTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
+
+						val = getVal(curPoint, document.getElementById("sigma").value);
+
+						ctx.lineTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
+						ctx.strokeStyle = colors[curColor];
+						ctx.stroke();
+						ctx.beginPath();
+
 					}
 
-
-					val = getVal(curPoint, document.getElementById("sigma").value);
-
-					ctx.lineTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
+					ctx.arc(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500), 5, 0, 2 * Math.PI, false);
+					ctx.fillStyle = colors[curColor];
+					ctx.fill();
+					ctx.beginPath();
 
 				}
 
+				ctx.strokeStyle = colors[curColor];
 				ctx.stroke();
+
+				curColor += 1;
+
+				if (curColor == colors.length) {
+				
+					curColor = 0;
+
+				}
 
 			}
 
-		</script>
-		<script>
-
 			function clearCanvas() {
 
-				const canvas = document.getElementById('canvas');
-				const ctx = canvas.getContext('2d');
+				curColor = 0;
 
 				ctx.clearRect(0, 0, 1000, 1000);
 
 				ctx.beginPath();
 				ctx.arc(500, 500, 500, 0, 2 * Math.PI);
+				ctx.strokeStyle = "black";
 				ctx.stroke();
+			
+			}
+
+			function drawPreZeroes() {
+
+				var sigma = document.getElementById("sigma").value;
+
+				var val = 0;
+
+				for (var i = 0; i < sigma; i++) {
+					
+					ctx.beginPath();
+
+					val = i / sigma;
+
+					ctx.moveTo(495 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (495 * Math.sin(val * 2 * Math.PI) + 500));
+
+					ctx.lineTo(505 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (505 * Math.sin(val * 2 * Math.PI) + 500));
+
+					ctx.strokeStyle = "black";
+					ctx.stroke();
+
+				}
 			
 			}
 
