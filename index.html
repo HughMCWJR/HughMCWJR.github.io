@@ -6,17 +6,25 @@
     <title></title>
 </head>
 <body>
-	<div id="inputs" style="overflow:hidden; position:absolute; top:0; left:0; height:200px;right:0px;background-color:#6d9eed;line-height: 0px;">
+	<div id="inputs" style="overflow:hidden; position:absolute; top:0; left:0; height:150px;right:0px;background-color:#6d9eed;line-height: 0px;">
 		<p>Sigma:</p>
 		<input type="text" id="sigma" name="sigma"><br><br>
-		<p>Point:</p>
-		<input type="text" id="point" name="point"><br><br>
+		<p>Points:</p>
+		<input type="text" id="points" name="points"><br><br>
 		<button type="button" onclick="draw()">Draw</button>
 		<button type="button" onclick="drawPreZeroes()">Draw Pre-Images of Zero</button>
 		<button type="button" onclick="clearCanvas()">Clear</button>
 	</div>
-	<div id="display" style="overflow:hidden; position:absolute; top:200px; left:0; height:1000px;right:0px;">
+	<div id="display" style="overflow:hidden; position:absolute; top:150px; left:0; height:1000px;right:0px;">
 		<canvas id="canvas" width="1000" height="1000"></canvas>
+		<table id="table">
+			<thead>
+				<tr></tr>
+			</thead>
+			<tbody>
+				<tr></tr>
+			</tbody>
+		</table>
 		<script>
 
 			var colors = ["#000000","#a30000","#127a00","#00128a","#8a4e00","#009682", "#5f0096"];
@@ -25,8 +33,10 @@
 			const canvas = document.getElementById('canvas');
 			const ctx = canvas.getContext('2d');
 
+			const table = document.getElementById('table');
+
 			ctx.beginPath();
-			ctx.arc(500, 500, 500, 0, 2 * Math.PI);
+			ctx.arc(canvas.height/2, canvas.height/2, (canvas.height/2 - 10), 0, 2 * Math.PI);
 			ctx.stroke();
 
 			function getVal(point, sigma) {
@@ -72,58 +82,86 @@
 
 			function draw() {
 
-				var curPoint = document.getElementById("point").value;
-				var val = getVal(curPoint, document.getElementById("sigma").value);
+				var points = document.getElementById("points").value.match(/\d*_\d+,/g);
 
-				var curPointLength = curPoint.length;
+				alert(points.length);
 
-				var notStarted = true;
+				if (points == null) {
+				
+					points = [document.getElementById("points").value];
 
-				ctx.beginPath();
-
-				ctx.arc(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500), 5, 0, 2 * Math.PI, false);
-				ctx.fillStyle = colors[curColor];
-				ctx.fill();
-				ctx.beginPath();
-
-				for (var i = 0; i < curPointLength; i++) {
-
-					if (curPoint.substr(0, 1) != "_") {
+				} else {
+				
+					for (var i = 0; i < points.length; i++) {
 					
-						curPoint = curPoint.slice(1 - curPoint.length);
-
-						val = getVal(curPoint, document.getElementById("sigma").value);
-
-					} else {
-					
-						curPoint = curPoint.substr(0, 1) + curPoint.slice(2 - curPoint.length) + curPoint.substr(1, 1);
-
-						ctx.moveTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
-
-						val = getVal(curPoint, document.getElementById("sigma").value);
-
-						ctx.lineTo(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500));
-						ctx.strokeStyle = colors[curColor];
-						ctx.stroke();
-						ctx.beginPath();
+						points[i] = points[i].slice(0, points[i].length - 1);
 
 					}
 
-					ctx.arc(500 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (500 * Math.sin(val * 2 * Math.PI) + 500), 5, 0, 2 * Math.PI, false);
+					var temp = document.getElementById("points").value.match(/,\d*_\d+/g);
+
+					points.push(temp[temp.length - 1].substr(1));
+
+					alert(points.length);
+
+				}
+
+				for (var i = 0; i < points.length; i++ ) {	
+
+					var curPoint = points[i];
+					var val = getVal(curPoint, document.getElementById("sigma").value);
+
+					var curPointLength = curPoint.length;
+
+					var notStarted = true;
+
+					ctx.beginPath();
+
+					ctx.arc((canvas.height/2 - 10) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(val * 2 * Math.PI) + canvas.height/2), 5, 0, 2 * Math.PI, false);
 					ctx.fillStyle = colors[curColor];
 					ctx.fill();
 					ctx.beginPath();
 
-				}
+					for (var j = 0; j < curPointLength; j++) {
 
-				ctx.strokeStyle = colors[curColor];
-				ctx.stroke();
+						if (curPoint.substr(0, 1) != "_") {
+					
+							curPoint = curPoint.slice(1 - curPoint.length);
 
-				curColor += 1;
+							val = getVal(curPoint, document.getElementById("sigma").value);
 
-				if (curColor == colors.length) {
+						} else {
+					
+							curPoint = curPoint.substr(0, 1) + curPoint.slice(2 - curPoint.length) + curPoint.substr(1, 1);
+
+							ctx.moveTo((canvas.height/2 - 10) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(val * 2 * Math.PI) + canvas.height/2));
+
+							val = getVal(curPoint, document.getElementById("sigma").value);
+
+							ctx.lineTo((canvas.height/2 - 10) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(val * 2 * Math.PI) + canvas.height/2));
+							ctx.strokeStyle = colors[curColor];
+							ctx.stroke();
+							ctx.beginPath();
+
+						}
+
+						ctx.arc((canvas.height/2 - 10) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 10) * Math.sin(val * 2 * Math.PI) + canvas.height/2), 5, 0, 2 * Math.PI, false);
+						ctx.fillStyle = colors[curColor];
+						ctx.fill();
+						ctx.beginPath();
+
+					}
+
+					ctx.strokeStyle = colors[curColor];
+					ctx.stroke();
+
+					curColor += 1;
+
+					if (curColor == colors.length) {
 				
-					curColor = 0;
+						curColor = 0;
+
+					}
 
 				}
 
@@ -133,10 +171,10 @@
 
 				curColor = 0;
 
-				ctx.clearRect(0, 0, 1000, 1000);
+				ctx.clearRect(0, 0, canvas.height, canvas.height);
 
 				ctx.beginPath();
-				ctx.arc(500, 500, 500, 0, 2 * Math.PI);
+				ctx.arc(canvas.height/2, canvas.height/2, (canvas.height/2 - 10), 0, 2 * Math.PI);
 				ctx.strokeStyle = "black";
 				ctx.stroke();
 			
@@ -154,9 +192,9 @@
 
 					val = i / sigma;
 
-					ctx.moveTo(495 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (495 * Math.sin(val * 2 * Math.PI) + 500));
+					ctx.moveTo((canvas.height/2 - 15) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 15) * Math.sin(val * 2 * Math.PI) + canvas.height/2));
 
-					ctx.lineTo(505 * Math.cos(val * 2 * Math.PI) + 500, 1000 - (505 * Math.sin(val * 2 * Math.PI) + 500));
+					ctx.lineTo((canvas.height/2 - 5) * Math.cos(val * 2 * Math.PI) + canvas.height/2, canvas.height - ((canvas.height/2 - 5) * Math.sin(val * 2 * Math.PI) + canvas.height/2));
 
 					ctx.strokeStyle = "black";
 					ctx.stroke();
